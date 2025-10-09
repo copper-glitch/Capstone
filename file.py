@@ -22,16 +22,22 @@ writer = csv.writer(f)
 # https://docs.opencv.org/4.x/dc/dc3/tutorial_py_matcher.html
 # https://stackoverflow.com/questions/3348460/csv-file-written-with-python-has-blank-lines-between-each-row
 
-path = 'C:/Users/ninja/Desktop/Capstone/mydata/'
-# print(cap.isOpened())
-for name in os.listdir(path):
+def getdata(path,name,count):
     video = os.path.join(path,name) 
     # print(f"{name[0]}{name[len(name)-5]}")
     cap = cv2.VideoCapture(video)
     while True:
-        spose = [name[0]]
-        spose.extend([name[len(name)-5]])
+        
+        part = name[len(name)-11:len(name)-8]
+        if part == "051":  
+            part="002"
+        else : part = "001"
+        spose = [part]
+        spose.append(count)
+        key = cv2.waitKey(1) & 0xFF
         success,img = cap.read()
+        if success != True:
+            break
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         results = pose.process(imgRGB)
         if results.pose_landmarks:
@@ -41,11 +47,16 @@ for name in os.listdir(path):
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 spose.extend([cx,cy])
             writer.writerow(spose)
-        cv2.imshow("Image", img)
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord('q'):
-            break
+        # cv2.imshow("Image", img)
+        
+        
+            
+path = 'C:/Users/ninja/Desktop/Capstone/subset/'
+count = 0
+for name in os.listdir(path):
+    count+=1
+    print(name)
+    getdata(path,name,count)
 
 f.close()
-cap.release()
 cv2.destroyAllWindows()
