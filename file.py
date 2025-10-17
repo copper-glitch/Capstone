@@ -4,6 +4,7 @@ import mediapipe as mp
 import os
 import io
 from PIL import Image
+import numpy as np
 # Initialize MediaPipe Pose and Drawing utilities
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
@@ -21,6 +22,7 @@ writer = csv.writer(f)
 # https://www.geeksforgeeks.org/python/python-loop-through-folders-and-files-in-directory/
 # https://docs.opencv.org/4.x/dc/dc3/tutorial_py_matcher.html
 # https://stackoverflow.com/questions/3348460/csv-file-written-with-python-has-blank-lines-between-each-row
+# https://www.geeksforgeeks.org/machine-learning/saving-a-machine-learning-model/
 
 def getdata(path,name,count):
     video = os.path.join(path,name) 
@@ -29,7 +31,7 @@ def getdata(path,name,count):
     while True:
         
         part = name[len(name)-11:len(name)-8]
-        if part == "051":  
+        if part == "050":  
             part="002"
         else : part = "001"
         spose = [part]
