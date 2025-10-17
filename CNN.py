@@ -4,12 +4,15 @@ import tensorflow as tf
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
-
+from sklearn.utils import class_weight
+from datetime import datetime
+import pickle
 # 30fps max length of a video was 7 so 210 
 # 68 features per frame
-MAX_F = 210
-FEATURES = 66
 
+MAX_F = 60
+FEATURES = 66
+# https://www.w3schools.com/python/ref_module_time.asp
 # https://blog.finxter.com/building-a-one-dimensional-convolutional-network-in-python-using-tensorflow/
 # https://www.geeksforgeeks.org/pandas/python-read-csv-using-pandas-read_csv/
 # https://www.tensorflow.org/guide/keras/preprocessing_layers
@@ -20,6 +23,8 @@ FEATURES = 66
 # https://www.geeksforgeeks.org/deep-learning/keras-input-layer/
 # https://numpy.org/doc/stable/reference/generated/numpy.reshape.html
 # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.groupby.html
+# https://datascience.stackexchange.com/questions/13490/how-to-set-class-weights-for-imbalanced-classes-in-keras
+# https://www.tensorflow.org/guide/keras/understanding_masking_and_padding
 
 # Chatgpt helped me with the padding function
 
@@ -74,19 +79,32 @@ for video_id, video in videos:
 # # print(data)
 # data = data.reshape(-1, MAX_F, FEATURES)
 
-
 data=np.array(data)
 
 labels = LabelEncoder().fit_transform(labels)
+class_weights = class_weight.compute_class_weight(class_weight='balanced',classes=np.unique(labels),y=labels)
+class_weight_dict = dict(enumerate(class_weights))
 
 model = tf.keras.Sequential([
-    tf.keras.layers.Conv1D(64, 3, activation='relu', input_shape=(MAX_F,FEATURES)),
+    tf.keras.layers.Masking(0.0,input_shape=(MAX_F,FEATURES)),
+    tf.keras.layers.Conv1D(32, 3, activation='relu', input_shape=(MAX_F,FEATURES)),
     tf.keras.layers.MaxPooling1D(2),
     tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(60, activation='relu'),
+    tf.keras.layers.Dropout(.23),
+    tf.keras.layers.Dense(20, activation='relu'),
     tf.keras.layers.Dense(2, activation='softmax')
 ])
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(x=data,y=labels,epochs=5,batch_size=MAX_F,verbose=2,validation_split=.2,shuffle=True)
+model.fit(x=data,y=labels,epochs=25,batch_size=21,verbose=2,validation_split=.3,shuffle=True,class_weight=class_weight_dict)
+
+model_pkl_file = f"{datetime.now()}CNN.pkl"  
+clean = ""
+for x in model_pkl_file:
+    if x != ":":
+        clean.join(x)
+
+with open("dave.pkl", 'wb') as file:  
+    pickle.dump(model, file)
+print("Written")
