@@ -1,4 +1,4 @@
-#Coach AI#
+Coach AI
 **AI-powered motion analysis for a Right Straight**
 
 ## 📖 Overview
@@ -20,4 +20,4 @@ It focuses on evaluating **a right straight punch**, providing **instant feedbac
   - [MediaPipe](https://google.github.io/mediapipe/) or [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose)  
   - [OpenCV](https://opencv.org/) for video capture and visualization  
   - NumPy / Pandas for data analysis  
-
+To Run, I provided an example dataset to create the model, then run it on the punch.mp4 to test
