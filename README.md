@@ -1,4 +1,4 @@
-#Coach AI
+#Coach AI#
 **AI-powered motion analysis for a Right Straight**
 
 ## 📖 Overview
