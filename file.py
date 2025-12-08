@@ -11,8 +11,6 @@ from multiprocessing import Pool as Processpool
 
 
 path = 'C:/Users/ninja/Desktop/Capstone/subset/'
-# Reference links for documentation and related resources used during development.
-# (Your comments preserved exactly)
 
 global_queue = queue.Queue()   # Queue for processed pose data (producer → consumer)
 file_queue = queue.Queue()     # Queue of videos to be processed (main → producer threads)
@@ -146,3 +144,4 @@ global_queue.put(None)
 consumer.join()
 
 cv2.destroyAllWindows()
+
