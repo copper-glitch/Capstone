@@ -20,4 +20,4 @@ It focuses on evaluating **a right straight punch**, providing **instant feedbac
   - [MediaPipe](https://google.github.io/mediapipe/) or [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose)  
   - [OpenCV](https://opencv.org/) for video capture and visualization  
   - NumPy / Pandas for data analysis  
-To Run, I provided an example dataset to create the model, then run it on the punch.mp4 to test
+To Run, I provided an example dataset to create the model, you might need to change some of the path variables to make it work. Run the multifile on the videos, wouldn't recommend downloading it's a good amount of videos. I provided the pdata which you can run the cnn on, then just pass the name of the model to the test.py
