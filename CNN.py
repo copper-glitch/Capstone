@@ -12,7 +12,6 @@ from keras.utils import to_categorical
 from tensorflow.keras import Sequential, Input
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, Dropout, LSTM, Dense
 from sklearn.model_selection import StratifiedKFold
-
 # Reference resource links (your comments preserved)
 # 30fps max length of a video was 7 so 210 
 # 68 features per frame
@@ -48,34 +47,9 @@ def pad(data):
         return data
 
 
-def normalize(video):
-    """
-    Normalize video data to have zero mean and unit variance per feature.
-    Translates coordinates based on hip center.
-    """
-
-    # LEFT_HIP → index 23
-    # RIGHT_HIP → index 24
-
-    video = np.array(video)
-    frames = video.shape[0]
-
-    # Reshape into (frames, 33 joints, 2 coordinates)
-    joints = video.reshape(frames, 33, 2)
-
-    # Compute hip center for each frame
-    hip_center = (joints[:, 23] + joints[:, 24]) / 2.0
-
-    # Normalize by translating
-    joints -= hip_center[:, None, :]
-
-    # Return flattened frame-by-frame pose vectors
-    return joints.reshape(frames, -1)
 
 
 def transform(video_data, c):
-
-    video_data = normalize(video_data)
 
     if c == 0:
         # original
@@ -173,10 +147,12 @@ if len(sys.argv) != 1:
     # Model definition
     model = Sequential([
         Input(shape=(MAX_F, FEATURES)),     # input layer
-        Conv1D(64, 5, activation='relu'),
+        Conv1D(64, 3, activation='relu'),
+        Conv1D(128, 3, activation='relu'),
         MaxPooling1D(2),
         Dropout(0.5),
         LSTM(32, return_sequences=False),
+        Dense(64, activation='relu'),
         Dense(32, activation='relu'),
         Dense(4, activation='softmax')
     ])
@@ -187,7 +163,19 @@ if len(sys.argv) != 1:
         loss='categorical_crossentropy',
         metrics=['accuracy']
     )
-
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+        monitor='val_loss',
+        factor=0.5,
+        patience=5,
+        min_lr=1e-6,
+        verbose=1
+    )
+    early_stop = tf.keras.callbacks.EarlyStopping(
+        monitor='val_loss',
+        patience=10,
+        restore_best_weights=True,
+        verbose=1
+    )
     # Train
     model.fit(
         x=augdata,
@@ -197,7 +185,8 @@ if len(sys.argv) != 1:
         verbose=2,
         validation_data=(X_test, y_test),
         shuffle=True,
-        class_weight=class_weight_dict
+        class_weight=class_weight_dict,
+        callbacks=[reduce_lr, early_stop]
     )
 
     # Save model to disk
